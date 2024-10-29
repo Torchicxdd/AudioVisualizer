@@ -1,4 +1,10 @@
 #include <Windows.h>
+#include <d3d11.h>
+
+#pragma comment (lib, "d3d11.lib")
+
+void InitD3D(HWND hwnd);
+void MessageLoop();
 
 // Event handling
 LRESULT CALLBACK WndProc (
@@ -14,24 +20,6 @@ LRESULT CALLBACK WndProc (
 		default: return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
-}
-
-void MessageLoop()
-{
-	MSG msg = { 0 };
-	while (WM_QUIT != msg.message)
-	{
-		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg); // Sends to WndProc
-		}
-		else
-		{
-			// Update();
-			// Render();
-		}
-	}
 }
 
 // Replacement for main
@@ -83,6 +71,8 @@ int WINAPI wWinMain (
 		return 0;
 	}
 
+	InitD3D(hwnd);
+
 	// Display the window
 	ShowWindow(hwnd, nCmdShow);
 
@@ -90,4 +80,67 @@ int WINAPI wWinMain (
 	MessageLoop();
 
 	return 0;
+}
+
+void MessageLoop()
+{
+	MSG msg = { 0 };
+	while (WM_QUIT != msg.message)
+	{
+		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg); // Sends to WndProc
+		}
+		else
+		{
+			// Update();
+			// Render();
+		}
+	}
+}
+
+void InitD3D(HWND hwnd)
+{
+	// Instead of using huge D3D11CreateDeviceAndSwapChain params
+	// We can use a swapChainDesc which contains everything
+	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+	// Zero the swapChainDesc which has reasonable default values
+	ZeroMemory(&swapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
+
+	// If set to 0, directx will look at the size of window to choose buffer size
+	swapChainDesc.BufferDesc.Width = 0;
+	swapChainDesc.BufferDesc.Height = 0;
+
+	// No vsync if 0/1
+	swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
+	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+
+	swapChainDesc.BufferDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+
+	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER::DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+
+	// Stretch back buffer if not the same size as window
+	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_UNSPECIFIED;
+
+	// Multisampling - Only increase Count by powers of 2
+	swapChainDesc.SampleDesc.Count = 8;
+	swapChainDesc.SampleDesc.Quality = 0;
+
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+
+	swapChainDesc.BufferCount = 1;
+
+	swapChainDesc.OutputWindow = hwnd;
+
+	// Set the app to be windowed. Can change to fullscreen later using
+	// IDXGISwapChain::SetFullscreenState
+	swapChainDesc.Windowed = true;
+
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+
+	// Not using flags right now
+	// Example flags: DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
+	// DXGI_SWAP_CHAIN_FLAG::
+	swapChainDesc.Flags = 0;
 }
