@@ -4,7 +4,14 @@
 #pragma comment (lib, "d3d11.lib")
 
 void InitD3D(HWND hwnd);
+
+IDXGISwapChain* swapChain;
+ID3D11Device* device;
+ID3D11DeviceContext* context;
+D3D_FEATURE_LEVEL selectedFeatureLevel;
+
 void MessageLoop();
+void CleanUp();
 
 // Event handling
 LRESULT CALLBACK WndProc (
@@ -71,6 +78,11 @@ int WINAPI wWinMain (
 		return 0;
 	}
 
+	// Make sure our coms are set to 0
+	swapChain = 0;
+	device = 0;
+	context = 0;
+
 	InitD3D(hwnd);
 
 	// Display the window
@@ -98,6 +110,16 @@ void MessageLoop()
 			// Render();
 		}
 	}
+
+	CleanUp();
+}
+
+// Must release directx objects that start with i should be released
+void CleanUp()
+{
+	if (swapChain) swapChain->Release();
+	if (device) device->Release();
+	if (context) context->Release();
 }
 
 void InitD3D(HWND hwnd)
@@ -143,4 +165,27 @@ void InitD3D(HWND hwnd)
 	// Example flags: DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
 	// DXGI_SWAP_CHAIN_FLAG::
 	swapChainDesc.Flags = 0;
+
+	D3D_FEATURE_LEVEL featureLevels[] = {
+		D3D_FEATURE_LEVEL_11_1,
+		D3D_FEATURE_LEVEL_11_0,
+		D3D_FEATURE_LEVEL_10_1,
+		D3D_FEATURE_LEVEL_10_0,
+	};
+
+	HRESULT hr = D3D11CreateDeviceAndSwapChain(
+		NULL,
+		D3D_DRIVER_TYPE_HARDWARE,
+		NULL,
+		D3D11_CREATE_DEVICE_SINGLETHREADED | D3D11_CREATE_DEVICE_BGRA_SUPPORT,
+		featureLevels,
+		ARRAYSIZE(featureLevels),
+		D3D11_SDK_VERSION,
+		&swapChainDesc,
+		&swapChain,
+		&device,
+		&selectedFeatureLevel,
+		&context
+	);
+
 }
