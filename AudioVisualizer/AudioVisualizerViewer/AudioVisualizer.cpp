@@ -1,9 +1,6 @@
 #pragma comment (lib, "d3d11.lib")
 #include <Windows.h>
 #include <d3d11.h>
-#include "GameCore.h"
-
-using namespace GameCore;
 
 IDXGISwapChain* swapChain;
 ID3D11Device* device;
@@ -13,16 +10,16 @@ LPCWSTR m_windowClassName = L"AudioVisualizer";
 LPCWSTR m_windowTitle = L"Audio Visualizer";
 HINSTANCE m_hInstance;
 
-class AudioVisualizer : public GameCore::IGameApp
+static class AudioVisualizer
 {
 public:
 	AudioVisualizer() {}
 
-	virtual void Startup() override;
-	virtual void Cleanup() override;
+	static void Startup();
+	static void Cleanup();
 
-	virtual void Update(float deltaT) override;
-	virtual void RenderScene() override;
+	static void Update(float deltaT);
+	static void RenderScene();
 
 	static LRESULT CALLBACK StaticWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
@@ -202,18 +199,18 @@ int WINAPI wWinMain(
 
 	// Register class
 	WNDCLASSEX wcex;
-	wcex.cbSize = sizeof(WNDCLASSEX);              // Size in RAM
-	wcex.style = CS_HREDRAW | CS_VREDRAW;          // Window style
-	wcex.lpfnWndProc = AudioVisualizer::StaticWindowProc;                    // WndProc
-	wcex.cbClsExtra = 0;                           // These two are for allocating extra bytes
+	wcex.cbSize = sizeof(WNDCLASSEX);                       // Size in RAM
+	wcex.style = CS_HREDRAW | CS_VREDRAW;                   // Window style
+	wcex.lpfnWndProc = AudioVisualizer::StaticWindowProc;   // WndProc
+	wcex.cbClsExtra = 0;                                    // These two are for allocating extra bytes
 	wcex.cbWndExtra = 0;
-	wcex.hInstance = hInstance;                    // Handle to the instance
-	wcex.hIcon = hIcon;                             // Icon in the top left
-	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW); // Cursor
+	wcex.hInstance = hInstance;                             // Handle to the instance
+	wcex.hIcon = hIcon;                                     // Icon in the top left
+	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);          // Cursor
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = nullptr;                   // No menu
-	wcex.lpszClassName = L"AudioVisualizer",           // Class's name
-	wcex.hIconSm = NULL;                           // No small icon
+	wcex.lpszMenuName = nullptr;                            // No menu
+	wcex.lpszClassName = L"AudioVisualizer",                // Class's name
+	wcex.hIconSm = NULL;                                    // No small icon
 	if (!RegisterClassEx(&wcex))
 	{
 		DWORD dwError = GetLastError();
@@ -228,16 +225,16 @@ int WINAPI wWinMain(
 	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 	HWND hwnd = CreateWindow(
 		m_windowClassName, // Class's name
-		m_windowTitle, // Window Title
+		m_windowTitle,     // Window Title
 		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, // Style
-		CW_USEDEFAULT, // Window position X
-		CW_USEDEFAULT, // Window position Y
+		CW_USEDEFAULT,      // Window position X
+		CW_USEDEFAULT,      // Window position Y
 		rc.right - rc.left, // Window Width
 		rc.bottom - rc.top, // Window Height
-		nullptr, // No parent window
-		nullptr, // No menu
-		NULL, // Handle to the instance
-		nullptr // No params passed
+		nullptr,            // No parent window
+		nullptr,            // No menu
+		NULL,               // Handle to the instance
+		nullptr             // No params passed
 	);
 
 	if (hwnd == NULL)
