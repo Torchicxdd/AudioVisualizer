@@ -1,28 +1,12 @@
-#pragma comment (lib, "d3d11.lib")
-#include <Windows.h>
-#include <d3d11.h>
+#include "AudioVisualizer.h"
 
-IDXGISwapChain* swapChain;
-ID3D11Device* device;
-ID3D11DeviceContext* context;
-D3D_FEATURE_LEVEL selectedFeatureLevel;
-LPCWSTR m_windowClassName = L"AudioVisualizer";
-LPCWSTR m_windowTitle = L"Audio Visualizer";
-HINSTANCE m_hInstance;
-
-static class AudioVisualizer
-{
-public:
-	AudioVisualizer() {}
-
-	static void Startup();
-	static void Cleanup();
-
-	static void Update(float deltaT);
-	static void RenderScene();
-
-	static LRESULT CALLBACK StaticWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-};
+IDXGISwapChain* AudioVisualizer::swapChain = 0;
+ID3D11Device* AudioVisualizer::device = 0;
+ID3D11DeviceContext* AudioVisualizer::context = 0;
+D3D_FEATURE_LEVEL AudioVisualizer::selectedFeatureLevel;
+LPCWSTR AudioVisualizer::m_windowClassName = L"AudioVisualizer";
+LPCWSTR AudioVisualizer::m_windowTitle = L"Audio Visualizer";
+HINSTANCE AudioVisualizer::m_hInstance = nullptr;
 
 void AudioVisualizer::Startup()
 {
@@ -113,41 +97,21 @@ void MessageLoop()
 
 void InitD3D(HWND hwnd)
 {
-	// Instead of using huge D3D11CreateDeviceAndSwapChain params
-	// We can use a swapChainDesc which contains everything
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
-	// Zero the swapChainDesc which has reasonable default values
 	ZeroMemory(&swapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
-
-	// If set to 0, directx will look at the size of window to choose buffer size
 	swapChainDesc.BufferDesc.Width = 0;
 	swapChainDesc.BufferDesc.Height = 0;
-
-	// No vsync if 0/1
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
-
 	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER::DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-
-	// Stretch back buffer if not the same size as window
 	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_UNSPECIFIED;
-
-	// Multisampling - Only increase Count by powers of 2
 	swapChainDesc.SampleDesc.Count = 8;
 	swapChainDesc.SampleDesc.Quality = 0;
-
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-
 	swapChainDesc.BufferCount = 1;
-
 	swapChainDesc.OutputWindow = hwnd;
-
-	// Set the app to be windowed. Can change to fullscreen later using
-	// IDXGISwapChain::SetFullscreenState
 	swapChainDesc.Windowed = true;
-
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
 	// Not using flags right now
@@ -174,10 +138,10 @@ void InitD3D(HWND hwnd)
 		ARRAYSIZE(featureLevels),
 		D3D11_SDK_VERSION,
 		&swapChainDesc,
-		&swapChain,
-		&device,
-		&selectedFeatureLevel,
-		&context
+		&AudioVisualizer::swapChain,
+		&AudioVisualizer::device,
+		&AudioVisualizer::selectedFeatureLevel,
+		&AudioVisualizer::context
 	);
 
 }
@@ -194,7 +158,7 @@ int WINAPI wWinMain(
 	{
 		hInstance = (HINSTANCE)GetModuleHandle(NULL);
 	}
-	m_hInstance = hInstance;
+	AudioVisualizer::m_hInstance = hInstance;
 
 	HICON hIcon = NULL;
 	WCHAR szExePath[MAX_PATH];
@@ -227,8 +191,8 @@ int WINAPI wWinMain(
 	RECT rc = { 0, 0, 800, 600 };
 	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 	HWND hwnd = CreateWindow(
-		m_windowClassName, // Class's name
-		m_windowTitle,     // Window Title
+		AudioVisualizer::m_windowClassName, // Class's name
+		AudioVisualizer::m_windowTitle,     // Window Title
 		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, // Style
 		CW_USEDEFAULT,      // Window position X
 		CW_USEDEFAULT,      // Window position Y
@@ -245,11 +209,6 @@ int WINAPI wWinMain(
 		DWORD dwError = GetLastError();
 		return HRESULT_FROM_WIN32(dwError);
 	}
-
-	// Make sure our coms are set to 0
-	swapChain = 0;
-	device = 0;
-	context = 0;
 
 	InitD3D(hwnd);
 	ShowWindow(hwnd, nCmdShow);
