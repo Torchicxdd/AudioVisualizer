@@ -108,7 +108,7 @@ void InitD3D(HWND hwnd)
 	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_UNSPECIFIED;
 	swapChainDesc.SampleDesc.Count = 8;
 	swapChainDesc.SampleDesc.Quality = 0;
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; // Enables resource to be used as drawing surface
 	swapChainDesc.BufferCount = 1;
 	swapChainDesc.OutputWindow = hwnd;
 	swapChainDesc.Windowed = true;
@@ -144,6 +144,18 @@ void InitD3D(HWND hwnd)
 		&AudioVisualizer::context
 	);
 
+	hr = AudioVisualizer::swapChain->GetBuffer(
+		0,
+		__uuidof(ID3D11Texture2D),
+		(void**) &AudioVisualizer::m_pBackBuffer);
+
+	hr = AudioVisualizer::device->CreateRenderTargetView(
+		AudioVisualizer::m_pBackBuffer.Get(),
+		nullptr,
+		m_pRenderTarget.GetAddressOf()
+	);
+
+	AudioVisualizer::m_pBackBuffer->GetDesc(&m_bbDesc);
 }
 
 // Replacement for main

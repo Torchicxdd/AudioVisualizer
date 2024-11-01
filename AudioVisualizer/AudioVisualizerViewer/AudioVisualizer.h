@@ -22,4 +22,5 @@ public:
 	static LPCWSTR m_windowClassName;
 	static LPCWSTR m_windowTitle;
 	static HINSTANCE m_hInstance;
+	static ID3D11Resource m_pBackBuffer;
 };
