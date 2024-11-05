@@ -75,5 +75,40 @@ HRESULT DeviceResources::CreateDeviceResources(HWND hWnd)
 
 	m_pBackBuffer->GetDesc(&m_bbDesc);
 
+	// Create Depth-stencil buffer
+	CD3D11_TEXTURE2D_DESC depthStencilDesc(
+		DXGI_FORMAT_D24_UNORM_S8_UINT,
+		static_cast<UINT> (m_bbDesc.Width),
+		static_cast<UINT> (m_bbDesc.Height),
+		1, // This depth stencil view has only one texture.
+		1, // Use a single mipmap level.
+		D3D11_BIND_DEPTH_STENCIL
+	);
 
+	m_pd3dDevice->CreateTexture2D(
+		&depthStencilDesc,
+		nullptr,
+		&m_pDepthStencil
+	);
+
+	CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
+
+	m_pd3dDevice->CreateDepthStencilView(
+		m_pDepthStencil.Get(),
+		&depthStencilViewDesc,
+		&m_pDepthStencilView
+	);
+
+	ZeroMemory(&m_viewport, sizeof(D3D11_VIEWPORT));
+	m_viewport.Height = (float)m_bbDesc.Height;
+	m_viewport.Width = (float)m_bbDesc.Width;
+	m_viewport.MinDepth = 0;
+	m_viewport.MaxDepth = 1;
+
+	m_pd3dDeviceContext->RSSetViewports(
+		1,
+		&m_viewport
+	);
+
+	return hr;
 }

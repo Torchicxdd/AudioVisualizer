@@ -120,10 +120,14 @@ LRESULT CALLBACK AudioVisualizer::StaticWindowProc(
 }
 
 HRESULT AudioVisualizer::Run(
-	std::shared_ptr<DeviceResources> deviceResources,
-	std::shared_ptr<Renderer> renderer
+	std::shared_ptr<DeviceResources> deviceResources
 )
 {
+	HRESULT hr = S_OK;
+
+	if (!IsWindowVisible(m_hWnd))
+		ShowWindow(m_hWnd, SW_SHOW);
+
 	bool bGotMsg;
 	MSG msg;
 	msg.message = WM_NULL;
@@ -144,15 +148,17 @@ HRESULT AudioVisualizer::Run(
 		else
 		{
 			// Update the scene.
-			renderer->Update();
+			//renderer->Update();
 
-			// Render frames during idle time (when no messages are waiting).
-			renderer->Render();
+			 //Render frames during idle time (when no messages are waiting).
+			//renderer->Render();
 
 			// Present the frame to the screen.
-			deviceResources->Present();
+			//deviceResources->Present();
 		}
 	}
+
+	return hr;
 }
 
 // Replacement for main
@@ -163,8 +169,29 @@ int WINAPI wWinMain(
 	int nCmdShow
 )
 {
-	ShowWindow(hwnd, nCmdShow);
-	MessageLoop();
+	HRESULT hr = S_OK;
 
-	return 0;
+	// Enable run-time memory check for debug builds.
+	#if defined(DEBUG) | defined(_DEBUG)
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	#endif
+
+	// Instantiate window manager
+	std::shared_ptr<AudioVisualizer> audioVisualizer = std::shared_ptr<AudioVisualizer>(new AudioVisualizer());
+
+	//Create a window
+	hr = audioVisualizer->CreateDesktopWindow();
+
+	if (SUCCEEDED(hr))
+	{
+		// Instantiate device manager class
+		std::shared_ptr<DeviceResources> deviceResources = std::shared_ptr<DeviceResources>(new DeviceResources());
+
+		// Create device resource
+		deviceResources->CreateDeviceResources(audioVisualizer->GetWindowHandle());
+
+		hr = audioVisualizer->Run(deviceResources);
+	}
+
+	return hr;
 }

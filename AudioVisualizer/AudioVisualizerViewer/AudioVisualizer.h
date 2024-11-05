@@ -1,12 +1,10 @@
 #pragma once
-#pragma comment (lib, "d3d11.lib")
 
 #include <memory>
 #include <Windows.h>
 #include <d3d11.h>
 
 #include "DeviceResources.h"
-#include "Renderer.h"
 
 class AudioVisualizer
 {
@@ -26,8 +24,7 @@ public:
 	);
 
 	HRESULT Run(
-		std::shared_ptr<DeviceResources> deviceResources,
-		std::shared_ptr<Renderer> renderer
+		std::shared_ptr<DeviceResources> deviceResources
 	);
 
 private:
