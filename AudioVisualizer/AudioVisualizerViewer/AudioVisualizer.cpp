@@ -1,37 +1,91 @@
 #include "AudioVisualizer.h"
 
-IDXGISwapChain* AudioVisualizer::swapChain = 0;
-ID3D11Device* AudioVisualizer::device = 0;
-ID3D11DeviceContext* AudioVisualizer::context = 0;
-D3D_FEATURE_LEVEL AudioVisualizer::selectedFeatureLevel;
-LPCWSTR AudioVisualizer::m_windowClassName = L"AudioVisualizer";
-LPCWSTR AudioVisualizer::m_windowTitle = L"Audio Visualizer";
-HINSTANCE AudioVisualizer::m_hInstance = nullptr;
-
-void AudioVisualizer::Startup()
+AudioVisualizer::AudioVisualizer()
 {
-	// Startup
+	m_windowClassName = L"AudioVisualizer";
+	m_windowTitle = L"Audio Visualizer";
+	m_hInstance = nullptr;
 }
 
-// Must release directx objects that start with i should be released
-void AudioVisualizer::Cleanup()
+AudioVisualizer::~AudioVisualizer()
 {
-	if (swapChain) swapChain->Release();
-	if (device) device->Release();
-	if (context) context->Release();
+	// Empty Deconstructor
 }
 
-void AudioVisualizer::Update(float deltaT)
+HRESULT AudioVisualizer::CreateDesktopWindow()
 {
-	// Update loop
+	if (m_hInstance == NULL)
+	{
+		m_hInstance = (HINSTANCE)GetModuleHandle(NULL);
+	}
+
+	HICON hIcon = NULL;
+	WCHAR szExePath[MAX_PATH];
+		GetModuleFileName(NULL, szExePath, MAX_PATH);
+
+	// Register class
+	WNDCLASSEX wcex;
+	wcex.cbSize = sizeof(WNDCLASSEX);                         // Size in RAM
+	wcex.style = CS_HREDRAW | CS_VREDRAW;                     // Window style
+	wcex.lpfnWndProc = AudioVisualizer::StaticWindowProc;     // WndProc
+	wcex.cbClsExtra = 0;                                      // These two are for allocating extra bytes
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = m_hInstance;                             // Handle to the instance
+	wcex.hIcon = hIcon;                                       // Icon in the top left
+	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);            // Cursor
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.lpszMenuName = nullptr;                              // No menu
+	wcex.lpszClassName = m_windowClassName,                   // Class's name
+	wcex.hIconSm = NULL;                                      // No small icon
+
+	if (!RegisterClassEx(&wcex))
+	{
+		DWORD dwError = GetLastError();
+		if (dwError != ERROR_CLASS_ALREADY_EXISTS)
+		{
+			return HRESULT_FROM_WIN32(dwError);
+		}
+	}
+
+	// Window Settings
+	int x = CW_USEDEFAULT;
+	int y = CW_USEDEFAULT;
+
+	m_hMenu = NULL;
+
+	int nDefaultWidth = 800;
+	int nDefaultHeight = 600;
+
+	SetRect(&m_rc, 0, 0, nDefaultWidth, nDefaultHeight);
+	AdjustWindowRect(
+		&m_rc,
+		WS_OVERLAPPEDWINDOW,
+		(m_hMenu != NULL) ? true : false
+		);
+
+	// Create Window
+	m_hWnd = CreateWindow(
+		m_windowClassName,	// Class's name
+		m_windowTitle,		// Window Title
+		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,  // Style
+		x, y,                                                      // Window position X and Y
+		(m_rc.right - m_rc.left), (m_rc.bottom - m_rc.top),        // Window Width and Height
+		0,                                                         // No parent window
+		m_hMenu,                                                   // No menu
+		m_hInstance,                                               // Handle to the instance
+		0                                                          // No params passed
+	);
+
+	if (m_hWnd == NULL)
+	{
+		DWORD dwError = GetLastError();
+		return HRESULT_FROM_WIN32(dwError);
+	}
+
+	return S_OK;
 }
 
-void AudioVisualizer::RenderScene()
-{
-	// Render scene
-}
-
-// Event handling
+// Event handling with Windows message loop
 LRESULT CALLBACK AudioVisualizer::StaticWindowProc(
 	HWND hWnd,
 	UINT uMsg,
@@ -65,7 +119,10 @@ LRESULT CALLBACK AudioVisualizer::StaticWindowProc(
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-void MessageLoop()
+HRESULT AudioVisualizer::Run(
+	std::shared_ptr<DeviceResources> deviceResources,
+	std::shared_ptr<Renderer> renderer
+)
 {
 	bool bGotMsg;
 	MSG msg;
@@ -87,75 +144,15 @@ void MessageLoop()
 		else
 		{
 			// Update the scene.
+			renderer->Update();
 
 			// Render frames during idle time (when no messages are waiting).
+			renderer->Render();
 
 			// Present the frame to the screen.
+			deviceResources->Present();
 		}
 	}
-}
-
-void InitD3D(HWND hwnd)
-{
-	DXGI_SWAP_CHAIN_DESC swapChainDesc;
-	ZeroMemory(&swapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
-	swapChainDesc.BufferDesc.Width = 0;
-	swapChainDesc.BufferDesc.Height = 0;
-	swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
-	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-	swapChainDesc.BufferDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
-	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER::DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_UNSPECIFIED;
-	swapChainDesc.SampleDesc.Count = 8;
-	swapChainDesc.SampleDesc.Quality = 0;
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; // Enables resource to be used as drawing surface
-	swapChainDesc.BufferCount = 1;
-	swapChainDesc.OutputWindow = hwnd;
-	swapChainDesc.Windowed = true;
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-
-	// Not using flags right now
-	// Example flags: DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
-	// DXGI_SWAP_CHAIN_FLAG::
-	swapChainDesc.Flags = 0;
-
-	D3D_FEATURE_LEVEL featureLevels[] = {
-		D3D_FEATURE_LEVEL_11_1,
-		D3D_FEATURE_LEVEL_11_0,
-		D3D_FEATURE_LEVEL_10_1,
-		D3D_FEATURE_LEVEL_10_0,
-		D3D_FEATURE_LEVEL_9_3,
-		D3D_FEATURE_LEVEL_9_2,
-		D3D_FEATURE_LEVEL_9_1,
-	};
-
-	HRESULT hr = D3D11CreateDeviceAndSwapChain(
-		NULL,
-		D3D_DRIVER_TYPE_HARDWARE,
-		NULL,
-		D3D11_CREATE_DEVICE_SINGLETHREADED | D3D11_CREATE_DEVICE_BGRA_SUPPORT,
-		featureLevels,
-		ARRAYSIZE(featureLevels),
-		D3D11_SDK_VERSION,
-		&swapChainDesc,
-		&AudioVisualizer::swapChain,
-		&AudioVisualizer::device,
-		&AudioVisualizer::selectedFeatureLevel,
-		&AudioVisualizer::context
-	);
-
-	hr = AudioVisualizer::swapChain->GetBuffer(
-		0,
-		__uuidof(ID3D11Texture2D),
-		(void**) &AudioVisualizer::m_pBackBuffer);
-
-	hr = AudioVisualizer::device->CreateRenderTargetView(
-		AudioVisualizer::m_pBackBuffer.Get(),
-		nullptr,
-		m_pRenderTarget.GetAddressOf()
-	);
-
-	AudioVisualizer::m_pBackBuffer->GetDesc(&m_bbDesc);
 }
 
 // Replacement for main
@@ -166,63 +163,6 @@ int WINAPI wWinMain(
 	int nCmdShow
 )
 {
-	if (hInstance == NULL)
-	{
-		hInstance = (HINSTANCE)GetModuleHandle(NULL);
-	}
-	AudioVisualizer::m_hInstance = hInstance;
-
-	HICON hIcon = NULL;
-	WCHAR szExePath[MAX_PATH];
-		GetModuleFileName(NULL, szExePath, MAX_PATH);
-
-	// Register class
-	WNDCLASSEX wcex;
-	wcex.cbSize = sizeof(WNDCLASSEX);                       // Size in RAM
-	wcex.style = CS_HREDRAW | CS_VREDRAW;                   // Window style
-	wcex.lpfnWndProc = AudioVisualizer::StaticWindowProc;   // WndProc
-	wcex.cbClsExtra = 0;                                    // These two are for allocating extra bytes
-	wcex.cbWndExtra = 0;
-	wcex.hInstance = hInstance;                             // Handle to the instance
-	wcex.hIcon = hIcon;                                     // Icon in the top left
-	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);          // Cursor
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = nullptr;                            // No menu
-	wcex.lpszClassName = L"AudioVisualizer",                // Class's name
-	wcex.hIconSm = NULL;                                    // No small icon
-	if (!RegisterClassEx(&wcex))
-	{
-		DWORD dwError = GetLastError();
-		if (dwError != ERROR_CLASS_ALREADY_EXISTS)
-		{
-			return HRESULT_FROM_WIN32(dwError);
-		}
-	}
-
-	// Create window
-	RECT rc = { 0, 0, 800, 600 };
-	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-	HWND hwnd = CreateWindow(
-		AudioVisualizer::m_windowClassName, // Class's name
-		AudioVisualizer::m_windowTitle,     // Window Title
-		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, // Style
-		CW_USEDEFAULT,      // Window position X
-		CW_USEDEFAULT,      // Window position Y
-		rc.right - rc.left, // Window Width
-		rc.bottom - rc.top, // Window Height
-		nullptr,            // No parent window
-		nullptr,            // No menu
-		NULL,               // Handle to the instance
-		nullptr             // No params passed
-	);
-
-	if (hwnd == NULL)
-	{
-		DWORD dwError = GetLastError();
-		return HRESULT_FROM_WIN32(dwError);
-	}
-
-	InitD3D(hwnd);
 	ShowWindow(hwnd, nCmdShow);
 	MessageLoop();
 
