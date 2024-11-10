@@ -37,3 +37,10 @@ x86/
 build/
 
 *.vcxproj.user
+
+# JUCE
+**/Builds
+**/JuceLibraryCode
+
+# DS_Store
+**/DS_Store
