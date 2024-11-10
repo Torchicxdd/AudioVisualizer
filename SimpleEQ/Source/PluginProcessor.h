@@ -21,6 +21,7 @@ public:
     ~SimpleEQAudioProcessor() override;
 
     //==============================================================================
+    // prepare to play is what gets called by the host when its about to start playback
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
 
@@ -28,6 +29,8 @@ public:
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
    #endif
 
+	// processBlock is what happens when you press "play" in the transport control
+    // NEVER INTERUPT THE PROCESS BLOCK AT ALL COSTS
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
     //==============================================================================
