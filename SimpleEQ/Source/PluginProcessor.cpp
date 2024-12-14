@@ -183,6 +183,83 @@ void SimpleEQAudioProcessor::setStateInformation (const void* data, int sizeInBy
     // whose contents will have been created by the getStateInformation() call.
 }
 
+juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::createParameterLayout()
+{
+	juce::AudioProcessorValueTreeState::ParameterLayout layout;
+
+	// Add a parameter for the low cut frequency
+	// 1: Name of the parameter
+	// 2: Label of the parameter
+	// 3: Range of the parameter (20 Hz to 20 kHz, 1 Hz steps, no skew)
+	// 4: Default value of the parameter (20 Hz since this is lowcut so off by default) 
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        "LowCut Freq",
+        "LowCut Freq", 
+		juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 
+        20.f));
+
+	// Add a parameter for the high cut frequency
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        "HighCut Freq",
+        "HighCut Freq",
+        juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f),
+        20000.f));
+
+	// Add a parameter for the peak frequency
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        "Peak Freq",
+        "Peak Freq",
+        juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f),
+        750.f));
+
+	// Add a parameter for the peak gain
+	// The range is -24 dB to 24 dB, with 0.5 dB steps, and a skew of 1
+	// Default value is +/- 0 dB
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        "Peak Gain",
+        "Peak Gain",
+        juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f),
+        0.0f));
+
+	// Add a parameter for the peak quality (Q)
+	// The range is 0.1 to 10, with 0.05 steps, and a skew of 1 (values are kinda arbitrary)
+	// This is a Q factor for the peak filter (how wide the filter is)
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        "Peak Quality",
+        "Peak Quality",
+        juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f),
+        1.f));
+
+	// Add the parameters for low cut and high cut slopes
+	// The choices are 12, 24, 36, and 48 dB/octave
+	// A bit of a complicated way to do it but it's c++ practice
+	juce::StringArray slopeChoices;
+    for (int i = 0; i < 4; i++)
+    {
+		juce::String str;
+		str << (12 + i * 12);
+		str << " db/Oct";
+		slopeChoices.add(str);
+    }
+
+	// This is a ParameterChoice, which is a parameter that teakes in a set of choices
+	// Default value is 0 (12 dB/octave)
+    layout.add(std::make_unique<juce::AudioParameterChoice>(
+        "LowCut Slope",
+        "LowCut Slope",
+        slopeChoices,
+        0));
+
+    layout.add(std::make_unique<juce::AudioParameterChoice>(
+        "HighCut Slope",
+        "HighCut Slope",
+        slopeChoices,
+        0));
+
+
+    return layout;
+}
+
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
