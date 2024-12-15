@@ -61,6 +61,16 @@ public:
 
 	juce::AudioProcessorValueTreeState apvts{*this, nullptr, "Parameters", createParameterLayout()};
 private:
+	// Aliases to make the code more readable
+    using Filter = juce::dsp::IIR::Filter<float>;
+	// the CutFilter is a chain of 4 Filter objects
+	using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
+	// the MonoChain is a chain of 3 (LowCut, Peak, HighCut)
+	using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
+
+	// By default basically everything in juce is mono so we need to make it stereo
+	MonoChain leftChain, rightChain;
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
 };
