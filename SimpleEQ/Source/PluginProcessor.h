@@ -11,6 +11,16 @@
 #include <JuceHeader.h>
 
 //==============================================================================
+// Struct to help us keep all our parameters grouped together so that its more modular
+struct ChainSettings
+{
+    float peakFreq { 0 }, peakGainInDecibels { 0 }, peakQuality { 1.f };
+    float lowCutFreq { 0 }, highCutFreq { 0 };
+    int lowCutSlope { 0 }, highCutSlope { 0 };
+};
+
+// Helper function to get all our parameter values in the struct
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
 /**
 */
 class SimpleEQAudioProcessor  : public juce::AudioProcessor
