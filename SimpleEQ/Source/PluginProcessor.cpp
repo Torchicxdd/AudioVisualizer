@@ -217,26 +217,26 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
 	juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
 	// Add a parameter for the low cut frequency
-	// 1: Name of the parameter
-	// 2: Label of the parameter
+	// 1: ID of the parameter
+	// 2: Name of the parameter
 	// 3: Range of the parameter (20 Hz to 20 kHz, 1 Hz steps, no skew)
 	// 4: Default value of the parameter (20 Hz since this is lowcut so off by default) 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { "LowCut Freq",  1 },
         "LowCut Freq",
-        "LowCut Freq", 
 		juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 
         20.f));
 
 	// Add a parameter for the high cut frequency
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        "HighCut Freq",
+        juce::ParameterID { "HighCut Freq", 1},
         "HighCut Freq",
         juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f),
         20000.f));
 
 	// Add a parameter for the peak frequency
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        "Peak Freq",
+        juce::ParameterID { "Peak Freq", 1},
         "Peak Freq",
         juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f),
         750.f));
@@ -245,7 +245,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
 	// The range is -24 dB to 24 dB, with 0.5 dB steps, and a skew of 1
 	// Default value is +/- 0 dB
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        "Peak Gain",
+        juce::ParameterID { "Peak Gain", 1},
         "Peak Gain",
         juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f),
         0.0f));
@@ -254,7 +254,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
 	// The range is 0.1 to 10, with 0.05 steps, and a skew of 1 (values are kinda arbitrary)
 	// This is a Q factor for the peak filter (how wide the filter is)
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        "Peak Quality",
+        juce::ParameterID { "Peak Quality", 1},
         "Peak Quality",
         juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f),
         1.f));
@@ -274,13 +274,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
 	// This is a ParameterChoice, which is a parameter that teakes in a set of choices
 	// Default value is 0 (12 dB/octave)
     layout.add(std::make_unique<juce::AudioParameterChoice>(
-        "LowCut Slope",
+        juce::ParameterID { "LowCut Slope", 1},
         "LowCut Slope",
         slopeChoices,
         0));
 
     layout.add(std::make_unique<juce::AudioParameterChoice>(
-        "HighCut Slope",
+        juce::ParameterID { "HighCut Slope", 1},
         "HighCut Slope",
         slopeChoices,
         0));
