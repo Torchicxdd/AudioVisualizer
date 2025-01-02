@@ -1,38 +1,52 @@
 #pragma once
 
-#include <memory>
-#include <Windows.h>
-#include <d3d11.h>
+#ifndef _AUDIOVISUALIZER_H_
+#define _AUDIOVISUALIZER_H_
 
-#include "DeviceResources.h"
+// Pre-processing directives
+#define WIN32_LEAN_AND_MEAN
+
+// Includes
+#include <windows.h>
+#include "Input.h"
+#include "Application.h"
 
 class AudioVisualizer
 {
 public:
 	AudioVisualizer();
+	AudioVisualizer(const AudioVisualizer&);
 	~AudioVisualizer();
 
-	HRESULT CreateDesktopWindow();
+	bool Initialize();
+	void Shutdown();
+	void Run();
 
-	HWND GetWindowHandle() { return m_hWnd; }
-
-	static LRESULT CALLBACK StaticWindowProc(
+	LRESULT CALLBACK MessageHandler(
 		HWND hWnd,
 		UINT uMsg,
 		WPARAM wParam,
 		LPARAM lParam
 	);
 
-	HRESULT Run(
-		std::shared_ptr<DeviceResources> deviceResources
-	);
+private:
+	bool Frame();
+	void InitializeWindows(int&, int&);
+	void ShutdownWindows();
 
 private:
-	HMENU m_hMenu;
-	RECT m_rc;
+	LPCWSTR m_applicationName;
+	HINSTANCE m_hInstance;
 	HWND m_hWnd;
+
+	Input* m_Input;
+	Application* m_Application;
 };
 
-static HINSTANCE m_hInstance;
-static LPCWSTR m_windowClassName;
-static LPCWSTR m_windowTitle;
+// Function Prototypes
+static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+
+// Globals
+static AudioVisualizer* ApplicationHandle = 0;
+
+#endif
