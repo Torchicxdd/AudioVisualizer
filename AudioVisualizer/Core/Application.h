@@ -20,7 +20,7 @@ public:
 
 	bool Initialize(int, int, HWND);
 	void Shutdown();
-	void Frame();
+	bool Frame();
 
 private:
 	bool Render();
