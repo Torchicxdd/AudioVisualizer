@@ -19,9 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Application.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
+    <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Input.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application.h" />
     <ClInclude Include="DeviceResources.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
