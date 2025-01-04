@@ -338,3 +338,149 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 
 	return true;
 }
+
+void D3DClass::Shutdown()
+{
+	// Before shutting down set to windowed mode or when you release the swap chain, it will throw an exception
+	if (m_swapChain)
+	{
+		m_swapChain->SetFullscreenState(false, NULL);
+	}
+
+	if (m_rasterState)
+	{
+		m_rasterState->Release();
+		m_rasterState = nullptr;
+	}
+
+	if (m_depthStencilView)
+	{
+		m_depthStencilView->Release();
+		m_depthStencilView = nullptr;
+	}
+
+	if (m_depthStencilState)
+	{
+		m_depthStencilState->Release();
+		m_depthStencilState = nullptr;
+	}
+
+	if (m_depthStencilBuffer)
+	{
+		m_depthStencilBuffer->Release();
+		m_depthStencilBuffer = nullptr;
+	}
+
+	if (m_renderTargetView)
+	{
+		m_renderTargetView->Release();
+		m_renderTargetView = nullptr;
+	}
+
+	if (m_deviceContext)
+	{
+		m_deviceContext->Release();
+		m_deviceContext = nullptr;
+	}
+
+	if (m_device)
+	{
+		m_device->Release();
+		m_device = nullptr;
+	}
+
+	if (m_swapChain)
+	{
+		m_swapChain->Release();
+		m_swapChain = nullptr;
+	}
+
+	return;
+}
+
+void D3DClass::BeginScene(float red, float green, float blue, float alpha)
+{
+	float colour[4];
+
+	// Setup the colour to clear the buffer to
+	colour[0] = red;
+	colour[1] = green;
+	colour[2] = blue;
+	colour[3] = alpha;
+
+	// Clear the back buffer
+	m_deviceContext->ClearRenderTargetView(m_renderTargetView, colour);
+
+	// Clear the depth buffer
+	m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	return;
+}
+
+void D3DClass::EndScene()
+{
+	// Present the back buffer to the screen since rendering is complete
+	if (m_vsync_enabled)
+	{
+		// Lock to screen refresh rate
+		m_swapChain->Present(1, 0);
+	}
+	else
+	{
+		// Present as fast as possible
+		m_swapChain->Present(0, 0);
+	}
+
+	return;
+}
+
+ID3D11Device* D3DClass::GetDevice()
+{
+	return m_device;
+}
+
+ID3D11DeviceContext* D3DClass::GetDeviceContext()
+{
+	return m_deviceContext;
+}
+
+void D3DClass::GetProjectionMatrix(XMMATRIX& projectionMatrix)
+{
+	projectionMatrix = m_projectionMatrix;
+	return;
+}
+
+void D3DClass::GetOrthoMatrix(XMMATRIX& orthoMatrix)
+{
+	orthoMatrix = m_orthoMatrix;
+	return;
+}
+
+void D3DClass::GetWorldMatrix(XMMATRIX& worldMatrix)
+{
+	worldMatrix = m_worldMatrix;
+	return;
+}
+
+void D3DClass::GetVideoCardInfo(char* cardName, int& memory)
+{
+	strcpy_s(cardName, 128, m_videoCardDescription);
+	memory = m_videoCardMemory;
+	return;
+}
+
+void D3DClass::SetBackBufferRenderTarget()
+{
+	// Bind the render target view and depth stencil buffer to the output render pipeline]
+	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
+
+	return;
+}
+
+void D3DClass::ResetViewport()
+{
+	// Set the viewport
+	m_deviceContext->RSSetViewports(1, &m_viewport);
+
+	return;
+}
