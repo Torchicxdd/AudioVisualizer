@@ -30,6 +30,10 @@
     <ClInclude Include="D3dClass.h" />
     <ClInclude Include="DeviceResources.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Colour.vs" />
+    <None Include="Colour.ps" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
