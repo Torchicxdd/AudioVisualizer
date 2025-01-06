@@ -135,4 +135,56 @@ bool ColourShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 	{
 		return false;
 	}
+
+	// Create the vertex input layout description
+	// This setup needs to match the VertexType struct in the Model class and in the shader
+	polygonLayout[0].SemanticName = "POSITION";
+	polygonLayout[0].SemanticIndex = 0;
+	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	polygonLayout[0].InputSlot = 0;
+	polygonLayout[0].AlignedByteOffset = 0;
+	polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	polygonLayout[0].InstanceDataStepRate = 0;
+
+	polygonLayout[1].SemanticName = "COLOR";
+	polygonLayout[1].SemanticIndex = 0;
+	polygonLayout[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	polygonLayout[1].InputSlot = 0;
+	polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	polygonLayout[1].InstanceDataStepRate = 0;
+
+	// Get a count of the elements in the layout
+	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
+
+	// Create the vertex input layer
+	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_layout);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed
+	vertexShaderBuffer->Release();
+	vertexShaderBuffer = nullptr;
+
+	pixelShaderBuffer->Release();
+	pixelShaderBuffer = nullptr;
+
+	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader
+	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
+	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	matrixBufferDesc.MiscFlags = 0;
+	matrixBufferDesc.StructureByteStride = 0;
+
+	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class
+	result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	return true;
 }
