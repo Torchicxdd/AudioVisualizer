@@ -20,19 +20,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="D3dclass.cpp" />
+    <ClCompile Include="ColourShader\ColourShader.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
+    <ClCompile Include="Direct3D\D3dclass.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Input.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
-    <ClInclude Include="D3dClass.h" />
+    <ClInclude Include="ColourShader\ColorShader.h" />
     <ClInclude Include="DeviceResources.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Colour.vs" />
-    <None Include="Colour.ps" />
+    <ClInclude Include="Direct3D\D3dClass.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

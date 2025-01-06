@@ -3,7 +3,7 @@
 #define _APPLIACATION_H_
 
 // Includes
-#include "d3dClass.h"
+#include "Direct3D/D3dClass.h"
 
 // Globals
 const bool FULL_SCREEN = false;
