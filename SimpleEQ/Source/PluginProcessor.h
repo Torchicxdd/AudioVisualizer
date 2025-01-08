@@ -80,7 +80,14 @@ private:
 
 	// By default basically everything in juce is mono so we need to make it stereo
 	MonoChain leftChain, rightChain;
-
+    
+    // Enum to make our life easier, basically same as the MonoChain
+    enum ChainPositions
+    {
+        LowCut,
+        Peak,
+        HighCut
+    };
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
 };

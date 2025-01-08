@@ -120,7 +120,11 @@ void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
                                                                                 chainSettings.peakFreq,
                                                                                 chainSettings.peakQuality,
                                                                                 juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibels));
-    
+    // give ChainPositions::Peak as index for the .get
+    // do not ask idk how this works or why we need to dereference on both sides
+    // I think its cus we need to copy over the values and not the references
+    *leftChain.get<ChainPositions::Peak>().coefficients = *peakCoefficients;
+    *rightChain.get<ChainPositions::Peak>().coefficients = *peakCoefficients;
 }
 
 void SimpleEQAudioProcessor::releaseResources()
@@ -182,6 +186,17 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
     //    // ..do something to the data...
     //}
+    
+    // Always update parameters BEFORE you process audio
+    auto chainSettings = getChainSettings(apvts);
+    
+    auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
+                                                                                chainSettings.peakFreq,
+                                                                                chainSettings.peakQuality,
+                                                                                juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibels));
+
+    *leftChain.get<ChainPositions::Peak>().coefficients = *peakCoefficients;
+    *rightChain.get<ChainPositions::Peak>().coefficients = *peakCoefficients;
 
     juce::dsp::AudioBlock<float> block(buffer);
 
@@ -249,26 +264,26 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
 	// Add a parameter for the low cut frequency
 	// 1: ID of the parameter
 	// 2: Name of the parameter
-	// 3: Range of the parameter (20 Hz to 20 kHz, 1 Hz steps, no skew)
-	// 4: Default value of the parameter (20 Hz since this is lowcut so off by default) 
+	// 3: Range of the parameter (20 Hz to 20 kHz, 1 Hz steps, skewed to bottom)
+	// 4: Default value of the parameter (20 Hz since this is lowcut so off by default)
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         juce::ParameterID { "LowCut Freq",  1 },
         "LowCut Freq",
-		juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 
+		juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.3),
         20.f));
 
 	// Add a parameter for the high cut frequency
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         juce::ParameterID { "HighCut Freq", 1},
         "HighCut Freq",
-        juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f),
+        juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.3),
         20000.f));
 
 	// Add a parameter for the peak frequency
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         juce::ParameterID { "Peak Freq", 1},
         "Peak Freq",
-        juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f),
+        juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.3),
         750.f));
 
 	// Add a parameter for the peak gain
