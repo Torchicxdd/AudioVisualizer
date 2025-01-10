@@ -27,10 +27,13 @@
     <ClCompile Include="Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ColourShader\ColourShader.cpp">
+    <ClCompile Include="ColourShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Direct3D\D3dclass.cpp">
+    <ClCompile Include="D3dclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,10 +44,13 @@
     <ClInclude Include="Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ColourShader\ColorShader.h">
+    <ClInclude Include="ColorShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Direct3D\D3dClass.h">
+    <ClInclude Include="D3dClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
