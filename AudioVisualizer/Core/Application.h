@@ -4,6 +4,9 @@
 
 // Includes
 #include "D3dClass.h"
+#include "Camera.h"
+#include "Model.h"
+#include "ColourShader.h"
 
 // Globals
 const bool FULL_SCREEN = false;
@@ -27,6 +30,9 @@ private:
 
 private:
 	D3DClass* m_Direct3D;
+	Camera* m_Camera;
+	Model* m_Model;
+	ColourShader* m_ColourShader;
 };
 
 #endif // !_APPLICATION_H_

@@ -1,4 +1,4 @@
-#include "ColorShader.h"
+#include "ColourShader.h"
 
 ColourShader::ColourShader()
 {
@@ -24,13 +24,13 @@ bool ColourShader::Initialize(ID3D11Device* device, HWND hwnd)
 	int error;
 
 	// Set the filename of the vertex shader and pixel shader
-	error = wcscpy_s(vsFilename, 128, L"Colour.vs");
+	error = wcscpy_s(vsFilename, 128, L"../Core/Colour.vs");
 	if (error != 0)
 	{
 		return false;
 	}
 
-	error = wcscpy_s(psFilename, 128, L"Colour.ps");
+	error = wcscpy_s(psFilename, 128, L"../Core/Colour.ps");
 	if (error != 0)
 	{
 		return false;
