@@ -42,6 +42,12 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TextureShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DeviceResources.h">
@@ -62,12 +68,24 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TextureShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Colour.ps">
       <Filter>Shader Files</Filter>
     </None>
     <None Include="Colour.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Texture.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Texture.ps">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
