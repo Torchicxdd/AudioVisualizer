@@ -4,6 +4,7 @@ Model::Model()
 {
 	m_vertexBuffer = nullptr;
 	m_indexBuffer = nullptr;
+	m_Texture = nullptr;
 }
 
 Model::Model(const Model& copy)
@@ -14,7 +15,7 @@ Model::~Model()
 {
 }
 
-bool Model::Initialize(ID3D11Device* device)
+bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* textureFilename)
 {
 	bool result;
 
@@ -25,11 +26,21 @@ bool Model::Initialize(ID3D11Device* device)
 		return false;
 	}
 
+	// Load the texture for this model
+	result = LoadTexture(device, deviceContext, textureFilename);
+	if (!result)
+	{
+		return false;
+	}
+
 	return true;
 }
 
 void Model::Shutdown()
 {
+	// Release the model texture
+	ReleaseTexture();
+
 	// Shutdown the vertex and index buffers
 	ShutdownBuffers();
 
@@ -47,6 +58,11 @@ void Model::Render(ID3D11DeviceContext* deviceContext)
 int Model::GetIndexCount()
 {
 	return m_indexCount;
+}
+
+ID3D11ShaderResourceView* Model::GetTexture()
+{
+	return m_Texture->GetTexture();
 }
 
 bool Model::InitializeBuffers(ID3D11Device* device)
@@ -77,13 +93,13 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 
 	// Load the vertex array with data
 	vertices[0].position = XMFLOAT3(-1.0f, -1.0f, 0.0f);  // Bottom left.
-	vertices[0].color = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+	vertices[0].texture = XMFLOAT2(0.0f, 1.0f);
 
 	vertices[1].position = XMFLOAT3(0.0f, 1.0f, 0.0f);  // Top left
-	vertices[1].color = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	vertices[1].texture = XMFLOAT2(0.5f, 0.0f);
 
 	vertices[2].position = XMFLOAT3(1.0f, -1.0f, 0.0f);  // Bottom right.
-	vertices[2].color = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+	vertices[2].texture = XMFLOAT2(1.0f, 1.0f);
 
 	// Load the index array with data
 	indices[0] = 0;
@@ -176,6 +192,35 @@ void Model::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
 	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	return;
+}
+
+bool Model::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename)
+{
+	bool result;
+
+	// Create and initialize the texture object
+	m_Texture = new Texture;
+
+	result = m_Texture->Initialize(device, deviceContext, filename);
+	if (!result)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void Model::ReleaseTexture()
+{
+	// Release the texture object
+	if (m_Texture)
+	{
+		m_Texture->Shutdown();
+		delete m_Texture;
+		m_Texture = nullptr;
+	}
 
 	return;
 }
