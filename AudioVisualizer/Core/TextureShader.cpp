@@ -77,18 +77,13 @@ bool TextureShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, X
 bool TextureShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
-	ID3D10Blob* errorMessage;
-	ID3D10Blob* vertexShaderBuffer;
-	ID3D10Blob* pixelShaderBuffer;
+	ID3D10Blob* errorMessage = nullptr;
+	ID3D10Blob* vertexShaderBuffer = nullptr;
+	ID3D10Blob* pixelShaderBuffer = nullptr;
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
 	unsigned int numElements;
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
-
-	// Initialize the pointers this function will use to null
-	errorMessage = nullptr;
-	vertexShaderBuffer = nullptr;
-	pixelShaderBuffer = nullptr;
 
 	// Compile the vertex shader code
 	result = D3DCompileFromFile(vsFilename, NULL, NULL, "TextureVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
