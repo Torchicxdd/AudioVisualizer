@@ -6,7 +6,8 @@
 #include "D3dClass.h"
 #include "Camera.h"
 #include "Model.h"
-#include "TextureShader.h"
+#include "LightShader.h"
+#include "Light.h"
 
 // Globals
 const bool FULL_SCREEN = false;
@@ -26,13 +27,14 @@ public:
 	bool Frame();
 
 private:
-	bool Render();
+	bool Render(float);
 
 private:
 	D3DClass* m_Direct3D;
 	Camera* m_Camera;
 	Model* m_Model;
-	TextureShader* m_TextureShader;
+	LightShader* m_LightShader;
+	Light* m_Light;
 };
 
 #endif // !_APPLICATION_H_

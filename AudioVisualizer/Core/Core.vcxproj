@@ -26,6 +26,7 @@
     <ClCompile Include="D3dclass.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Input.h" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="LightShader.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -37,6 +38,7 @@
     <ClInclude Include="ColourShader.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="D3dClass.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="LightShader.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Texture.h" />
